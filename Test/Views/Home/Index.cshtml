@@ -1,0 +1,118 @@
+﻿@model IEnumerable<Test.Models.User>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<br />
+<div class="container-fluid border border-light rounded">
+    <h2 class="mx-auto shadow p-4 mb-4 bg-white align-content-center">Users</h2> <br />
+
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Phone)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DateofBirth)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Married)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Salary)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+            <tr id="@item.Id">
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Phone)
+                </td>
+                <td>
+                   @item.DateofBirth.ToShortDateString()
+                </td>
+                
+                @{string mar = item.Married ? "married" : "not married";}
+                <td>
+                    @mar
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Salary)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                </td>
+            </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+<script>
+    var x = document.getElementsByTagName("th");
+    for (var i = 0; i < x.length-1; i++) {
+        (function (i) { //самовызывающаяся ф-я. можно еще просто вызывать именнованую ф-ю
+            //let y=i;// или так вместо вызова ф-и
+            x[i].onclick = function () { 
+                let CollectionOfTr = document.getElementsByTagName("tr");
+                let array = [];
+                let indexfortr = i + (i + 1);//арифм прогрессия, где каждый шаг на +1 больше предыдущего. и равен i+1
+                let iter = 0;
+                let MyObj = [];
+                for (let j = 1; j < CollectionOfTr.length; j++) {
+                    array[iter] = CollectionOfTr[j].childNodes[indexfortr].innerText + j;
+                    let newarr = [];
+                    CollectionOfTr[j].childNodes.forEach(item => { newarr.push(item.innerText) });
+                    MyObj[j - 1] = {
+                        key: array[iter],
+                        arr: newarr,
+                        id: CollectionOfTr[j].id
+                    }
+                    iter++;
+                }
+                let sortarray = [];
+                for (let j = 0; j < array.length; j++) sortarray[j] = array[j];
+
+                sortarray.sort(); // это как должны располагаться элементы
+
+                let sortMyObj = [];
+                for (let j = 0; j < sortarray.length; j++) {
+                    for (let i = 0; i < MyObj.length; i++) {
+                        if (sortarray[j] == MyObj[i].key) {
+                            sortMyObj[j] = MyObj[i];
+                        }
+                    }
+                }
+                for (let j = 0; j < sortMyObj.length; j++) {
+                    //console.log(sortMyObj[j].arr);
+
+                    for (let i = 0; i < CollectionOfTr[j + 1].children.length; i++) {
+                        
+                        if (i == CollectionOfTr[j + 1].children.length - 1) {
+                            CollectionOfTr[j + 1].childNodes[i + (i + 1)].firstChild.nextSibling.href = "/Home/Edit/" + sortMyObj[j].id;
+                            CollectionOfTr[j + 1].childNodes[i + (i + 1)].lastChild.previousSibling.href = "/Home/Delete/" + sortMyObj[j].id;
+                            console.log(CollectionOfTr[j + 1].childNodes[i + (i + 1)].lastChild.previousSibling);
+                            CollectionOfTr[j + 1].id = sortMyObj[j].id;
+                        }
+                        else {
+                            CollectionOfTr[j + 1].childNodes[i + (i + 1)].innerText = sortMyObj[j].arr[i + i + 1];
+                        }
+                    }
+                }
+            }
+        })(i);//за счет (и) - передали параметр. создает капсулу, не будет конфликта имен с др.библиотеками
+    }
+</script>
